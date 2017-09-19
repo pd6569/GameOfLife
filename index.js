@@ -23,20 +23,31 @@ class GameOfLife {
 
         this.currentGeneration = this.seedGeneration;
         this.currentGenerationNum = 0;
+        this.loopingActive = false;
 
         // DOM
         this.$generationNum = $('#generationNum');
         this.$grid = $('#grid');
         this.$nextGenBtn = $('#nextGenBtn');
+        this.$loopGenerationsBtn = $('#loopGenerations');
+        this.$stopLoopBtn = $('#stopLoop');
+        this.$resetBtn = $('#reset');
 
         this.setListeners();
         this.outputGeneration()
     }
 
     setListeners(){
-        this.$nextGenBtn.on('click', () => {
-            this.getNextGen();
-        })
+        this.$nextGenBtn.on('click', () => this.getNextGen());
+
+        this.$loopGenerationsBtn.on('click', () => {
+            this.loopingActive = true;
+            this.getNextGen()
+        });
+
+        this.$stopLoopBtn.on('click', () => this.loopingActive = false);
+
+        this.$resetBtn.on('click', () => this.reset());
     }
 
     getNextGen(){
@@ -87,7 +98,7 @@ class GameOfLife {
                     if (!firstCell) if (this.currentGeneration[i+1][j-1] === "*") numNeighbours++; // check below and left
                 }
 
-                console.log("Checking row: " + (i+1) + " column: " + (j+1) + " num Neighbours: " + numNeighbours);
+                /*console.log("Checking row: " + (i+1) + " column: " + (j+1) + " num Neighbours: " + numNeighbours);*/
                 if (currentCell === "0"){
                     if (numNeighbours === 3) {
                         newRow[j] = "*";
@@ -104,10 +115,12 @@ class GameOfLife {
             }
             nextGen[i] = newRow;
         }
-        console.log("Next gen: ", nextGen);
+        /*console.log("Next gen: ", nextGen);*/
         this.currentGeneration = nextGen;
         this.outputGeneration();
-
+        if (this.loopingActive){
+            setTimeout(() => this.getNextGen(), 1000);
+        }
     }
 
     outputGeneration(){
@@ -126,6 +139,12 @@ class GameOfLife {
                 $row.append(`<td class="temp-cell">${cell}</td>`);
             }
         }
+    }
+
+    reset(){
+        this.currentGeneration = this.seedGeneration;
+        this.currentGenerationNum = 0;
+        this.outputGeneration();
     }
 }
 
